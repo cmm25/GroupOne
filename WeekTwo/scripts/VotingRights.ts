@@ -3,8 +3,7 @@ import { http, createWalletClient } from "viem";
 import { abi, bytecode } from "../artifacts/contracts/Ballot.sol/Ballot.json";
 import { privateKeyToAccount } from "viem/accounts";
 
-// To call use
-// npx ts-node --files ./scripts/GiveVotingRights.ts "contract_address" "voter_account"
+
 async function giveVotingRights(publicClient: any, walletClient: any) {
 
     const parameters = process.argv.slice(2, 4);
