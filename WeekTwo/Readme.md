@@ -1,96 +1,142 @@
 # Ethereum Ballot Project
 
-This project implements a voting system using Solidity smart contracts on the Ethereum blockchain. It includes scripts for deploying the Ballot contract, giving voting rights, casting votes, delegating votes, and querying results.
+A decentralized voting system implemented on the Ethereum blockchain using Solidity smart contracts. This project allows for transparent and secure voting where a chairperson can give voting rights, and voters can cast votes or delegate their voting power to others.
+
+## Features
+
+- Create proposals for voting
+- Assign voting rights to addresses
+- Cast votes on proposals
+- Delegate voting power
+- Query voting results
+- Get winning proposal
 
 ## Project Structure
 
-- `contracts/Ballot.sol`: The main voting contract
-- `scripts/`: TypeScript scripts to interact with the contract
-  - `DeploywithViem.ts`: Deploys the contract with proposal names
-  - `VotingRights.ts`: Gives voting rights to addresses
-  - `CastVote.ts`: Allows voting on proposals
-  - `DelegateVote.ts`: Delegates votes to another address
-  - `QueryResults.ts`: Queries all proposals and their vote counts
-  - `GetWinningProposal.ts`: Gets the current winning proposal
+- `contracts/Ballot.sol`: Smart contract for the voting system
+- `scripts/`: TypeScript scripts for contract interaction
+  - `DeploywithViem.ts`: Contract deployment
+  - `VotingRights.ts`: Manage voting rights
+  - `CastVote.ts`: Vote on proposals
+  - `DelegateVote.ts`: Delegate votes
+  - `QueryResults.ts`: View all proposals and votes
+  - `GetWinningProposal.ts`: Check winning proposal
 
-## Setup Instructions
+## Setup
 
 1. Install dependencies:
+
    ```shell
    npm install
    ```
 
-2. Create a `.env` file with:
+2. Configure environment:
+   Create a `.env` file with:
    ```
-   PRIVATE_KEY=your-private-key-without-0x-prefix
-   RPC_ENDPOINT_URL=your-rpc-endpoint-url
+   INFURA_API_KEY=your-infura-api-key
+   PRIVATE_KEY=your-wallet-private-key-without-0x
    ```
 
-3. Deploy the contract:
+## Usage Guide
+
+### 1. Deploy the Contract
+
+Deploy with your initial proposals:
+
+```shell
+npx ts-node scripts/DeploywithViem.ts "Proposal1" "Proposal2" "Proposal3"
+```
+
+Save the deployed contract address for future interactions.
+
+### 2. Give Voting Rights
+
+The deploying address (chairperson) can give voting rights:
+
+```shell
+npx ts-node scripts/VotingRights.ts <contract-address> <voter-address>
+```
+
+### 3. Cast Votes
+
+Voters with rights can vote on proposals:
+
+```shell
+npx ts-node scripts/CastVote.ts <contract-address> <proposal-number>
+```
+
+Note: Proposal numbers start from 0
+
+### 4. Delegate Voting Power
+
+Voters can delegate their vote to another address:
+
+```shell
+npx ts-node scripts/DelegateVote.ts <contract-address> <delegate-address>
+```
+
+### 5. View Results
+
+Check current voting status:
+
+```shell
+npx ts-node scripts/QueryResults.ts <contract-address>
+```
+
+See winning proposal:
+
+```shell
+npx ts-node scripts/GetWinningProposal.ts <contract-address>
+```
+
+## Example Workflow
+
+1. Deploy contract with proposals:
+
    ```shell
-   npx ts-node scripts/DeploywithViem.ts "Proposal1" "Proposal2" "Proposal3"
+   npx ts-node scripts/DeploywithViem.ts "Coffee" "Tea" "Water"
+   # Contract deployed to: 0x123...
    ```
 
-## Current Issues I'm Facing
+2. Give voting rights to addresses:
 
-### 1. Private Key Format Problems
+   ```shell
+   npx ts-node scripts/VotingRights.ts 0x123... 0xvoter1...
+   npx ts-node scripts/VotingRights.ts 0x123... 0xvoter2...
+   ```
 
-**Error Message:**
-```
-Error: invalid private key, expected hex or 32 bytes, got string
-```
+3. Cast votes:
 
-**What I've Tried:**
-- Removed the "0x" prefix from my private key in the `.env` file
-- Verified the private key is 64 characters long
-- Checked that my code adds the "0x" prefix when using the key
+   ```shell
+   npx ts-node scripts/CastVote.ts 0x123... 1  # Vote for "Tea"
+   ```
 
-**Questions:**
-- How can I verify my private key is in the correct format?
-- Is there a way to test the private key without deploying?
+4. Check results:
+   ```shell
+   npx ts-node scripts/QueryResults.ts 0x123...
+   ```
 
-### 2. RPC Endpoint Connection Issues
+## Requirements
 
-**Error Message:**
-```
-Details: {"code":-32600,"message":"Invalid access key"}
-URL: https://eth-sepolia.g.alchemy.com/v2/[my-key]
-```
+- Node.js and npm
+- An Infura API key
+- Sepolia testnet ETH (get from a faucet)
+- A wallet private key with Sepolia ETH
 
-**What I've Tried:**
-- Generated a new API key from Alchemy
-- Verified the API key in my Alchemy dashboard
-- Tried using a different RPC provider (Infura)
+## Network
 
-**Questions:**
-- How can I test if my RPC endpoint is working correctly?
-- Are there any free, reliable RPC endpoints I can use for testing?
+This project is configured for the Sepolia testnet. Make sure you have:
 
-### 3. Contract Deployment Failures
+- Sepolia ETH in your wallet
+- A valid Infura API key
+- The correct network configuration
 
-**Error Messages:**
-- Sometimes get "Insufficient funds" even though I have Sepolia ETH
-- Occasionally see "Gas estimation failed"
+## Troubleshooting
 
-**What I've Tried:**
-- Obtained more Sepolia ETH from faucets
-- Manually specified gas parameters
-- Checked my account balance before deployment
-
-**Questions:**
-- What's a reliable way to check my Sepolia ETH balance?
-- How much ETH is typically needed for deploying this contract?
-
-## Help Needed
-
-I'm specifically looking for help with:
-
-1. Troubleshooting the private key format issue
-2. Setting up a reliable RPC endpoint connection
-3. Successfully deploying the contract to Sepolia testnet
-4. Understanding how to properly test the voting functionality
-
-Any guidance or code examples would be greatly appreciated. I can provide more details or error logs if needed.
+- If transactions fail, check your Sepolia ETH balance
+- Verify voter addresses have been granted voting rights
+- Ensure you're using the correct contract address
+- Check that proposals exist (index starts at 0)
 
 ## Hardhat Commands
 
@@ -103,5 +149,7 @@ REPORT_GAS=true npx hardhat test
 npx hardhat node
 npx hardhat ignition deploy ./ignition/modules/Lock.ts
 ```
+
 ```
 
+```
