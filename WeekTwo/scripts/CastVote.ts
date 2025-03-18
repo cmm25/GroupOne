@@ -1,12 +1,18 @@
-import { createPublicClient, http, createWalletClient, hexToString } from "viem";
+import {
+    createPublicClient,
+    http,
+    createWalletClient,
+    hexToString,
+} from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { sepolia } from "viem/chains";
 import { abi } from "../artifacts/contracts/Ballot.sol/Ballot.json";
 import * as dotenv from "dotenv";
 dotenv.config();
 
-const providerApiKey = process.env.ALCHEMY_API_KEY || "";
-const voterPrivateKey = process.env.VOTER_PRIVATE_KEY || "";
+const infuraApiKey = process.env.INFURA_API_KEY || "";
+const rpcEndpoint = `https://sepolia.infura.io/v3/${infuraApiKey}`;
+const voterPrivateKey = process.env.PRIVATE_KEY || "";
 
 export async function CastVote() {
     const parameters = process.argv.slice(2);
@@ -21,17 +27,17 @@ export async function CastVote() {
     const proposalIndex = parameters[1];
     if (isNaN(Number(proposalIndex))) throw new Error("Invalid proposal index");
 
-    // Create clients
+    // Create clients using Infura endpoint
     const publicClient = createPublicClient({
         chain: sepolia,
-        transport: http(`https://eth-sepolia.g.alchemy.com/v2/${providerApiKey}`),
+        transport: http(rpcEndpoint),
     });
 
     const account = privateKeyToAccount(`0x${voterPrivateKey}`);
     const voter = createWalletClient({
         account,
         chain: sepolia,
-        transport: http(`https://eth-sepolia.g.alchemy.com/v2/${providerApiKey}`),
+        transport: http(rpcEndpoint),
     });
 
     // Check proposal
@@ -48,12 +54,12 @@ export async function CastVote() {
 
         // Check voter status
         try {
-            const voterStatus = await publicClient.readContract({
+            const voterStatus = (await publicClient.readContract({
                 address: contractAddress,
                 abi,
                 functionName: "voters",
                 args: [voter.account.address],
-            }) as any;
+            })) as any;
             console.log("Voter status:", voterStatus);
 
             if (!voterStatus.weight) {
@@ -102,15 +108,17 @@ export async function CastVote() {
 }
 
 if (require.main === module) {
-    CastVote().then((result) => {
-        if (result.success) {
-            console.log("Successfully cast vote. Transaction hash:", result.hash);
-        } else {
-            console.log("Failed to cast vote:", result.error);
-        }
-        process.exit(0);
-    }).catch((error) => {
-        console.error(error);
-        process.exitCode = 1;
-    });
+    CastVote()
+        .then((result) => {
+            if (result.success) {
+                console.log("Successfully cast vote. Transaction hash:", result.hash);
+            } else {
+                console.log("Failed to cast vote:", result.error);
+            }
+            process.exit(0);
+        })
+        .catch((error) => {
+            console.error(error);
+            process.exitCode = 1;
+        });
 }

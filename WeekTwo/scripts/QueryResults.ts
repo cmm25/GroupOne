@@ -6,9 +6,11 @@ import { sepolia } from "viem/chains";
 dotenv.config();
 
 export async function queryingResult(publicClient: any = null) {
+    const infuraApiKey = process.env.INFURA_API_KEY || "";
+    const rpcEndpoint = `https://sepolia.infura.io/v3/${infuraApiKey}`;
     // Use provided client or create a new one
     if (!publicClient) {
-        const rpcUrl = process.env.RPC_ENDPOINT_URL;
+        const rpcUrl = rpcEndpoint;
         if (!rpcUrl) throw new Error("RPC endpoint URL not provided in .env file");
 
         publicClient = createPublicClient({

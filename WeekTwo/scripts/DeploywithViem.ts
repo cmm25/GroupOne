@@ -1,27 +1,43 @@
-import { createPublicClient, http, createWalletClient, formatEther, toHex } from "viem";
+import {
+    createPublicClient,
+    http,
+    createWalletClient,
+    formatEther,
+    toHex,
+} from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { sepolia } from "viem/chains";
 import { abi, bytecode } from "../artifacts/contracts/Ballot.sol/Ballot.json";
 import * as dotenv from "dotenv";
 dotenv.config();
 
-const providerApiKey = process.env.ALCHEMY_API_KEY || "";
+const infuraApiKey = process.env.INFURA_API_KEY || "";
+const rpcEndpoint = `https://sepolia.infura.io/v3/${infuraApiKey}`;
+
+if (!infuraApiKey) throw new Error("Infura API key not provided in .env file");
+
 const deployerPrivateKey = process.env.PRIVATE_KEY || "";
 
 async function main() {
     const proposals = process.argv.slice(2);
     if (!proposals || proposals.length < 1)
         throw new Error("Proposals not provided");
+
+    if (!rpcEndpoint)
+        throw new Error("RPC endpoint URL not provided in .env file");
+
     const publicClient = createPublicClient({
         chain: sepolia,
-        transport: http(`https://eth-sepolia.g.alchemy.com/v2/${providerApiKey}`),
+        transport: http(rpcEndpoint),
     });
+
     const account = privateKeyToAccount(`0x${deployerPrivateKey}`);
     const deployer = createWalletClient({
         account,
         chain: sepolia,
-        transport: http(`https://eth-sepolia.g.alchemy.com/v2/${providerApiKey}`),
+        transport: http(rpcEndpoint),
     });
+
     console.log("Deployer address:", deployer.account.address);
     const balance = await publicClient.getBalance({
         address: deployer.account.address,
