@@ -12,5 +12,5 @@ yarnrc
 yarnrc.bak
 .env
 .env.*
-npm fund
+
 
